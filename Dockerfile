@@ -82,11 +82,11 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     
 RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && echo "/home\npublic_html" >>/etc/apache2/suexec/www-data \
-    && service mysql start \
+    && service mysql start || mysqld --datadir=/var/lib/mysql --user=mysql \
     && echo "defip=$(ip addr|grep eth0|grep -o -E 'inet ([0-9]+\.){3}[0-9]+'|sed 's/^inet //')" >>/etc/webmin/virtual-server/config \
     && echo "iface=eth0" >>/etc/webmin/virtual-server/config \
     && virtualmin set-global-feature --disable-feature dns --disable-feature mail --disable-feature virus --disable-feature spam --enable-feature ftp --enable-feature mysql \
-    && service mysql stop \
+    && service mysql stop |killall mysqld \
     && echo "setup complete"
 
 ADD entrypoint.sh /
