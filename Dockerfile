@@ -62,7 +62,7 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     && a2enmod proxy_fcgi setenvif \
     && a2enmod suexec \
     && a2enmod rewrite \
-    && ( [ ${UBUNTU_RELEASE} = "20.04" ] && a2enconf php7.4-fpm || a2enconf php7.2-fpm ) \
+    && ( which php7.4 && a2enconf php7.4-fpm || a2enconf php7.2-fpm ) \
     && a2enmod cgi \
     && a2enmod actions \
     && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.14.gpl_all.deb \
