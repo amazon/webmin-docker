@@ -37,12 +37,13 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     apache2 \
     apache2-suexec-custom \
     libapache2-mod-php \
-    libapache2-mod-fcgid \
     php-gd \
     php-mbstring \
     php-mysql \
-    php-cgi \
     php-fpm \
+    php-cgi \
+    phpunit \
+    composer \
     bind9 \
     postfix \
     proftpd \
@@ -54,19 +55,28 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     procmail \
     inotify-tools \
     tzdata \
+    less \
     vim \
-    && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.14.gpl_all.deb \
-    && touch /etc/network/interfaces \
-    && apt install -y ./webmin-virtual-server_6.14.gpl_all.deb \
-    && rm -f webmin-virtual-server_6.14.gpl_all.deb \
-    && a2enmod actions \
     && a2enmod ssl \
     && a2enmod proxy_fcgi setenvif \
     && a2enmod suexec \
     && a2enmod rewrite \
     && a2enconf php7.2-fpm \
-    && a2enmod fcgid \
     && a2enmod cgi \
+    && a2enmod actions \
+    && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.14.gpl_all.deb \
+    && touch /etc/network/interfaces \
+    && apt install -y ./webmin-virtual-server_6.14.gpl_all.deb \
+    && rm -f webmin-virtual-server_6.14.gpl_all.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    
+RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && echo "/home\npublic_html" >>/etc/apache2/suexec/www-data \
+#   && service mysql start || mysqld --datadir=/var/lib/mysql --user=mysql \
+    && service mysql start \
+    && echo "defip=$(ip addr|grep eth0|grep -o -E 'inet ([0-9]+\.){3}[0-9]+'|sed 's/^inet //')" >>/etc/webmin/virtual-server/config \
+    && echo "iface=eth0" >>/etc/webmin/virtual-server/config \
     && echo "virtual_alias_maps = hash:/etc/postfix/virtual" >>/etc/postfix/main.cf \
     && echo "mailbox_command = /usr/bin/procmail" >>/etc/postfix/main.cf \
     && echo "wizard_run=1" >>/etc/webmin/virtual-server/config \
@@ -74,19 +84,16 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     && chmod 6755 /usr/bin/procmail \
     && echo /bin/false >>/etc/shells \
     && groupadd -g 14 ftp \
+    && service webmin start \
+    && cd /usr/share/webmin && /usr/share/webmin/changepass.pl /etc/webmin root 123456 \
+#   && virtualmin check-config \
+    && virtualmin set-global-feature --disable-feature dns --disable-feature mail --disable-feature spam --disable-feature virus \
+    && virtualmin set-global-feature --enable-feature ftp --enable-feature mysql \
+#   && service mysql stop || killall mysqld || true \
+    && service mysql stop \
+    && service webmin stop \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
     && rm -f /etc/apache2/sites-enabled/localhost.conf \
-    && cd /usr/share/webmin && /usr/share/webmin/changepass.pl /etc/webmin root 123456 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-    
-RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
-    && echo "/home\npublic_html" >>/etc/apache2/suexec/www-data \
-    && service mysql start || mysqld --datadir=/var/lib/mysql --user=mysql \
-    && echo "defip=$(ip addr|grep eth0|grep -o -E 'inet ([0-9]+\.){3}[0-9]+'|sed 's/^inet //')" >>/etc/webmin/virtual-server/config \
-    && echo "iface=eth0" >>/etc/webmin/virtual-server/config \
-    && virtualmin set-global-feature --disable-feature dns --disable-feature mail --disable-feature virus --disable-feature spam --enable-feature ftp --enable-feature mysql \
-    && service mysql stop |killall mysqld \
     && echo "setup complete"
 
 ADD entrypoint.sh /
