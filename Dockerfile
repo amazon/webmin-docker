@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+ARG UBUNTU_RELEASE=18.04
+FROM ubuntu:${UBUNTU_RELEASE}
 
 ENV container docker
 ENV LC_ALL C
@@ -61,7 +62,7 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     && a2enmod proxy_fcgi setenvif \
     && a2enmod suexec \
     && a2enmod rewrite \
-    && a2enconf php7.2-fpm \
+    && ( [ ${UBUNTU_RELEASE} = "20.04" ] && a2enconf php7.4-fpm || a2enconf php7.2-fpm \
     && a2enmod cgi \
     && a2enmod actions \
     && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.14.gpl_all.deb \
