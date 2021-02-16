@@ -74,7 +74,7 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
 RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && echo "/home\npublic_html" >>/etc/apache2/suexec/www-data \
 #   && service mysql start || mysqld --datadir=/var/lib/mysql --user=mysql \
-    && service mysql start \
+    && find /var/lib/mysql/mysql -exec touch -c -a {} +  && service mysql start \
     && echo "defip=$(ip addr|grep eth0|grep -o -E 'inet ([0-9]+\.){3}[0-9]+'|sed 's/^inet //')" >>/etc/webmin/virtual-server/config \
     && echo "iface=eth0" >>/etc/webmin/virtual-server/config \
     && echo "virtual_alias_maps = hash:/etc/postfix/virtual" >>/etc/postfix/main.cf \
