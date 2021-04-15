@@ -66,10 +66,10 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     && ( which php7.4 && a2enconf php7.4-fpm || a2enconf php7.2-fpm ) \
     && a2enmod cgi \
     && a2enmod actions \
-    && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.14.gpl_all.deb \
+    && curl -O https://download.webmin.com/download/virtualmin/webmin-virtual-server_6.16.gpl_all.deb \
     && touch /etc/network/interfaces \
-    && apt install -y ./webmin-virtual-server_6.14.gpl_all.deb \
-    && rm -f webmin-virtual-server_6.14.gpl_all.deb \
+    && apt install -y ./webmin-virtual-server_6.16.gpl_all.deb \
+    && rm -f webmin-virtual-server_6.16.gpl_all.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
     
