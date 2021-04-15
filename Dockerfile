@@ -72,9 +72,10 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
     
+COPY virtual-server_config /etc/webmin/virtual-server/config
+
 RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && echo "/home\npublic_html" >>/etc/apache2/suexec/www-data \
-#   && service mysql start || mysqld --datadir=/var/lib/mysql --user=mysql \
     && find /var/lib/mysql/mysql -exec touch -c -a {} +  && service mysql start \
     && echo "defip=$(ip addr|grep eth0|grep -o -E 'inet ([0-9]+\.){3}[0-9]+'|sed 's/^inet //')" >>/etc/webmin/virtual-server/config \
     && echo "iface=eth0" >>/etc/webmin/virtual-server/config \
@@ -87,10 +88,8 @@ RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && groupadd -g 14 ftp \
     && service webmin start \
     && cd /usr/share/webmin && /usr/share/webmin/changepass.pl /etc/webmin root 123456 \
-#   && virtualmin check-config \
     && virtualmin set-global-feature --disable-feature dns --disable-feature mail --disable-feature spam --disable-feature virus \
     && virtualmin set-global-feature --enable-feature ftp --enable-feature mysql \
-#   && service mysql stop || killall mysqld || true \
     && service mysql stop \
     && service webmin stop \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
