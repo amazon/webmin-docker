@@ -1,4 +1,4 @@
-ARG UBUNTU_RELEASE=18.04
+ARG UBUNTU_RELEASE=20.04
 FROM ubuntu:${UBUNTU_RELEASE}
 
 ENV container docker
@@ -98,6 +98,8 @@ RUN  echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && rm -f /etc/apache2/sites-enabled/localhost.conf \
     && echo "setup complete"
 
-ADD entrypoint.sh /
+EXPOSE 80/tcp
+EXPOSE 443/tcp
+EXPOSE 10000/tcp
 
-ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+ENTRYPOINT ["/lib/systemd/systemd"]
