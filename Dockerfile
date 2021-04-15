@@ -38,7 +38,6 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list \
     apache2 \
     apache2-suexec-custom \
     libapache2-mod-php \
-    libapache2-mod-fcgid \
     php-gd \
     php-mbstring \
     php-mysql \
